@@ -1,0 +1,13 @@
+{
+  "name": "dalek",
+  "main": "./lib/main",
+  "version": "0.0.0",
+  "description": "EXTERMINATEs built-in packages installed in ~/.atom/packages",
+  "keywords": [
+  ],
+  "repository": "https://github.com/atom/dalek",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.12.7 <2.0.0"
+  }
+}
