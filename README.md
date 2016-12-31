@@ -1,10 +1,10 @@
 # dalek
 
-**EXTERMINATEs** built-in packages installed in `~/.atom/packages`.
+**EXTERMINATEs** core packages installed in `~/.atom/packages`.
 
 ## Why worry?
 
-When people install built-in Atom packages as if they are community packages, it can cause many problems that are very hard to diagnose. This package is intended to notify people when they are in this precarious position so they can take corrective action.
+When people install core Atom packages as if they are community packages, it can cause many problems that are very hard to diagnose. This package is intended to notify people when they are in this precarious position so they can take corrective action.
 
 ## I got a warning, what do I do?
 
