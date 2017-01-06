@@ -11,5 +11,16 @@
   },
   "dependencies": {
     "grim": "^2.0.1"
+  },
+  "devDependencies": {
+    "standard": "^8.6.0"
+  },
+  "standard": {
+    "env": {
+      "jasmine": true
+    },
+    "globals": [
+      "atom"
+    ]
   }
 }
