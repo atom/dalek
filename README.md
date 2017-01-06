@@ -1,5 +1,7 @@
 # dalek
 
+[![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+
 **EXTERMINATEs** core packages installed in `~/.atom/packages`.
 
 ## Why worry?
