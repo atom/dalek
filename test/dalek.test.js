@@ -1,25 +1,21 @@
 /** @babel */
 
+const assert = require('assert')
 const fs = require('fs')
+const sinon = require('sinon')
 
 const dalek = require('../lib/dalek')
 
 describe('dalek', function () {
   describe('enumerate', function () {
     let realPaths = {}
+    let sandbox = null
 
     beforeEach(function () {
       atom.devMode = false
-
-      spyOn(fs, 'realpathSync').andCallFake((filepath) => {
-        if (realPaths[filepath]) {
-          return realPaths[filepath]
-        }
-
-        return filepath
-      })
-
-      spyOn(atom.packages, 'getAvailablePackagePaths').andReturn([
+      sandbox = sinon.sandbox.create()
+      sandbox.stub(dalek, 'realpath').callsFake((filePath) => Promise.resolve(realPaths[filePath] || filePath))
+      sandbox.stub(atom.packages, 'getAvailablePackagePaths').callsFake(() => [
         '/Users/username/.atom/packages/advanced-open-file',
         '/Users/username/.atom/packages/bookmarks',
         '/Users/username/.atom/packages/foo',
@@ -28,8 +24,12 @@ describe('dalek', function () {
       ])
     })
 
-    it('returns a list of duplicate names', function () {
-      expect(dalek.enumerate()).toEqual(['bookmarks', 'foo'])
+    afterEach(function () {
+      sandbox.restore()
+    })
+
+    it('returns a list of duplicate names', async function () {
+      assert.deepEqual(await dalek.enumerate(), ['bookmarks', 'foo'])
     })
 
     describe('when in dev mode', function () {
@@ -37,18 +37,18 @@ describe('dalek', function () {
         atom.devMode = true
       })
 
-      it('always returns an empty list', function () {
-        expect(dalek.enumerate()).toEqual([])
+      it('always returns an empty list', async function () {
+        assert.deepEqual(await dalek.enumerate(), [])
       })
     })
 
-    describe('when a package is symlinked into the package directory', function () {
+    describe('when a package is symlinked into the package directory', async function () {
       beforeEach(function () {
         realPaths['/Users/username/.atom/packages/bookmarks'] = '/Users/username/bookmarks'
       })
 
-      it('is not included in the list of duplicate names', function () {
-        expect(dalek.enumerate()).toEqual(['foo'])
+      it('is not included in the list of duplicate names', async function () {
+        assert.deepEqual(await dalek.enumerate(), ['foo'])
       })
     })
   })
