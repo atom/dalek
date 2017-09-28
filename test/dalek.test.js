@@ -8,20 +8,25 @@ const dalek = require('../lib/dalek')
 
 describe('dalek', function () {
   describe('enumerate', function () {
+    let availablePackages = {}
     let realPaths = {}
+    let bundledPackages = []
     let sandbox = null
 
     beforeEach(function () {
+      availablePackages = {
+        'an-unduplicated-installed-package': '/Users/username/.atom/packages/an-unduplicated-installed-package',
+        'duplicated-package': '/Users/username/.atom/packages/duplicated-package',
+        'unduplicated-package': `${atom.getLoadSettings().resourcePath}/node_modules/unduplicated-package`
+      }
+
       atom.devMode = false
+      bundledPackages = ['duplicated-package', 'unduplicated-package']
       sandbox = sinon.sandbox.create()
       sandbox.stub(dalek, 'realpath').callsFake((filePath) => Promise.resolve(realPaths[filePath] || filePath))
-      sandbox.stub(atom.packages, 'getAvailablePackagePaths').callsFake(() => [
-        '/Users/username/.atom/packages/advanced-open-file',
-        '/Users/username/.atom/packages/bookmarks',
-        '/Users/username/.atom/packages/foo',
-        '/Applications/Atom.app/Contents/Resources/app.asar/node_modules/bookmarks',
-        '/Applications/Atom.app/Contents/Resources/app.asar/node_modules/foo'
-      ])
+      sandbox.stub(atom.packages, 'isBundledPackage').callsFake((packageName) => { return bundledPackages.includes(packageName) })
+      sandbox.stub(atom.packages, 'getAvailablePackageNames').callsFake(() => Object.keys(availablePackages))
+      sandbox.stub(atom.packages, 'resolvePackagePath').callsFake((packageName) => availablePackages[packageName])
     })
 
     afterEach(function () {
@@ -29,7 +34,7 @@ describe('dalek', function () {
     })
 
     it('returns a list of duplicate names', async function () {
-      assert.deepEqual(await dalek.enumerate(), ['bookmarks', 'foo'])
+      assert.deepEqual(await dalek.enumerate(), ['duplicated-package'])
     })
 
     describe('when in dev mode', function () {
@@ -44,11 +49,11 @@ describe('dalek', function () {
 
     describe('when a package is symlinked into the package directory', async function () {
       beforeEach(function () {
-        realPaths['/Users/username/.atom/packages/bookmarks'] = '/Users/username/bookmarks'
+        realPaths['/Users/username/.atom/packages/duplicated-package'] = '/Users/username/duplicated-package'
       })
 
       it('is not included in the list of duplicate names', async function () {
-        assert.deepEqual(await dalek.enumerate(), ['foo'])
+        assert.deepEqual(await dalek.enumerate(), [])
       })
     })
   })
